@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   					   http://www.springframework.org/schema/beans/spring-beans.xsd
+	   					   http://www.springframework.org/schema/rabbit
+	   					   http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd">
+	   					  
+	<rabbit:connection-factory id="connectionFactory" host="localhost" />
+	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" exchange="topicExchangeTest" routing-key="topic.key" />
+	<rabbit:admin connection-factory="connectionFactory" />
+	<rabbit:queue name="helloworld.topic" durable="true" auto-delete="false"/>	
+	
+	<!-- topic -->
+	<rabbit:topic-exchange name="topicExchangeTest">
+		<rabbit:bindings>
+			<rabbit:binding queue="helloworld.topic" pattern="topic.*"></rabbit:binding>
+		</rabbit:bindings>
+	</rabbit:topic-exchange>   	
+	
+	<!-- listener -->
+	<rabbit:listener-container connection-factory="connectionFactory">
+		<rabbit:listener ref="topicListener" queue-names="helloworld.topic" />
+	</rabbit:listener-container>	
+	
+	<bean id="topicListener" class="com.cherry.rabbitmqdemo.rabbittemplate.TopicListener" />			  
+</beans>
